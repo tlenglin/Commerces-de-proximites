@@ -1,6 +1,19 @@
 import React, { Component } from 'react'
 import TableCommerces from './TableCommerces'
+import Loading from './Loading'
+import Error from './Error'
 
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import InputBase from '@material-ui/core/InputBase'
+import SearchIcon from '@material-ui/icons/Search'
+import Button from '@material-ui/core/Button'
+import Table from '@material-ui/core/Table'
+import TableHead from '@material-ui/core/TableHead'
+import Paper from '@material-ui/core/Paper'
+import TableRow from '@material-ui/core/TableRow'
+import TableCell from '@material-ui/core/TableCell'
 export default class Home extends Component {
   constructor() {
     super()
@@ -19,69 +32,58 @@ export default class Home extends Component {
   }
 
   componentDidMount() {
-    console.log('componentDidMount')
-    fetch(
-      'https://data.ratp.fr/api/records/1.0/search/?dataset=liste-des-commerces-de-proximite-agrees-ratp' +
-        this.state.currentSort +
-        '&rows=' +
-        this.state.currentRows
-    )
-      .then(results => {
-        return results.json()
-      })
-      .then(data => {
-        const commerces = data.records.map(record => record.fields)
-        this.setState({
-          commerces: commerces,
-          numResults: data.nhits,
-          lastPage:
-            Math.floor(data.nhits / this.state.currentRows) === 0
-              ? 1
-              : Math.floor(data.nhits / this.state.currentRows),
-          loading: false,
-          error: false
-        })
-      })
-      .catch(err => {
-        console.log('err => ', err)
-      })
+    this.fetchCommerces(10, 1, '', '', 0)
   }
 
   fetchCommerces = (rows, page, filter, sort, start) => {
-    fetch(
-      'https://data.ratp.fr/api/records/1.0/search/?dataset=liste-des-commerces-de-proximite-agrees-ratp&facet=tco_libelle&facet=ville&facet=code_postal' +
-        filter +
-        sort +
-        '&rows=' +
-        rows +
-        '&start=' +
-        start
-    )
-      .then(results => {
-        return results.json()
-      })
-      .then(data => {
-        const commerces = data.records.map(record => record.fields)
+    this.setState(
+      {
+        loading: true
+      },
+      () => {
+        fetch(
+          'https://data.ratp.fr/api/records/1.0/search/?dataset=liste-des-commerces-de-proximite-agrees-ratp&facet=tco_libelle&facet=ville&facet=code_postal' +
+            filter +
+            sort +
+            '&rows=' +
+            rows +
+            '&start=' +
+            start
+        )
+          .then(results => {
+            return results.json()
+          })
+          .then(data => {
+            const commerces = data.records.map(record => record.fields)
+            this.setState({
+              commerces: commerces,
+              numResults: data.nhits,
+              lastPage:
+                Math.floor(data.nhits / rows) === 0
+                  ? 1
+                  : Math.floor(data.nhits / rows),
+              loading: false,
+              error: false
+            })
+          })
+          .catch(err => {
+            console.log('error => ', err)
+            this.setState({
+              error: true,
+              loading: false,
+              lastPage: 1,
+              numResults: 0,
+              commerces: []
+            })
+          })
         this.setState({
-          commerces: commerces,
-          numResults: data.nhits,
-          lastPage:
-            Math.floor(data.nhits / rows) === 0
-              ? 1
-              : Math.floor(data.nhits / rows),
-          loading: false,
-          error: false
+          currentPage: page,
+          currentSort: sort,
+          currentFilter: filter,
+          currentRows: rows
         })
-      })
-      .catch(err => {
-        console.log('err => ', err)
-      })
-    this.setState({
-      currentPage: page,
-      currentSort: sort,
-      currentFilter: filter,
-      currentRows: rows
-    })
+      }
+    )
   }
 
   handlePrevious = () => {
@@ -173,22 +175,68 @@ export default class Home extends Component {
     )
   }
 
+  handleReset = () => {
+    this.fetchCommerces(10, 1, '', '', 0)
+  }
+
+  handleCloseLoading = () => {
+    this.setState({ loading: false })
+  }
+
+  handleCloseError = () => {
+    this.setState({ error: false })
+  }
+
   render() {
     return (
       <div>
+        <AppBar position="static" color="primary">
+          <Toolbar>
+            <div className="title" onClick={this.handleReset}>
+              <Typography variant="h6" color="inherit">
+                Trouvez votre commerce de proximité
+              </Typography>
+            </div>
+            <div className="search">
+              <form onSubmit={this.handleSubmit}>
+                <div className="searchIcon" onClick={this.handleSortCodePostal}>
+                  <SearchIcon />
+                </div>
+                <div className="searchInput">
+                  <InputBase
+                    type="search"
+                    placeholder="    Nom du commerce ..."
+                    id="searchInput"
+                    onChange={this.handleChange}
+                  />
+                </div>
+              </form>
+            </div>
+            <div>
+              <Button color="inherit" onClick={this.handleSortCodePostal}>
+                Tri par code postal
+              </Button>
+            </div>
+          </Toolbar>
+        </AppBar>
+
+        {this.state.error ? <Error /> : null}
+        {this.state.loading ? <Loading /> : null}
+
         <div>
-          <button onClick={this.handleSortCodePostal}>Code Postal</button>
+          <Paper>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nom du Commerce</TableCell>
+                  <TableCell align="right">Ville</TableCell>
+                  <TableCell align="right">Code Postal</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableCommerces commerces={this.state.commerces} />
+            </Table>
+          </Paper>
         </div>
-        <form onSubmit={this.handleSubmit}>
-          <div>
-            <label>Libellé</label>
-            <textarea id="searchInput" onChange={this.handleChange} />
-          </div>
-          <div>
-            <button>Rechercher</button>
-          </div>
-        </form>
-        <TableCommerces commerces={this.state.commerces} />
         {this.state.currentPage - 1 === 0 ? null : (
           <button onClick={this.handleFirst}>{'<<'}</button>
         )}

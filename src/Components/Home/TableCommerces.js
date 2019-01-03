@@ -1,17 +1,21 @@
 import React from 'react'
+import TableRow from '@material-ui/core/TableRow'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
 
 const TableCommerces = ({ commerces }) => {
   return (
-    <div>
+    <TableBody>
       {commerces.map((commerce, index) => (
-        <div key={index}>
-          <div>Libellé: {commerce.tco_libelle}</div>
-          <div>Ville: {commerce.ville}</div>
-          <div>Code Postal: {commerce.code_postal}</div>
-          <br />
-        </div>
+        <TableRow key={index}>
+          <TableCell component="th" scope="row">
+            {commerce.tco_libelle}
+          </TableCell>
+          <TableCell align="right">{commerce.ville}</TableCell>
+          <TableCell align="right">{commerce.code_postal}</TableCell>
+        </TableRow>
       ))}
-    </div>
+    </TableBody>
   )
 }
 
