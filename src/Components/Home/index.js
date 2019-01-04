@@ -1,22 +1,12 @@
 import React, { Component } from 'react'
-import TableCommerces from './TableCommerces'
 import Loading from './Loading'
 import Error from './Error'
+import HeaderTable from './HeaderTable'
+import Footer from './Footer'
+import TableTab from './TableTab'
 
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import InputBase from '@material-ui/core/InputBase'
-import SearchIcon from '@material-ui/icons/Search'
-import Button from '@material-ui/core/Button'
-import Table from '@material-ui/core/Table'
-import TableHead from '@material-ui/core/TableHead'
-import Paper from '@material-ui/core/Paper'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import IconButton from '@material-ui/core/IconButton'
-import TableFooter from '@material-ui/core/TableFooter'
-import TablePagination from '@material-ui/core/TablePagination'
+import { Grid } from '@material-ui/core'
+
 export default class Home extends Component {
   constructor() {
     super()
@@ -30,7 +20,8 @@ export default class Home extends Component {
       searchInput: '',
       currentFilter: '',
       numResults: 0,
-      lastPage: 0
+      lastPage: 0,
+      tab: 0
     }
   }
 
@@ -147,6 +138,12 @@ export default class Home extends Component {
     })
   }
 
+  handleChangeTab = (e, value) => {
+    this.setState({
+      tab: value
+    })
+  }
+
   handleRows = e => {
     this.setState({ currentRows: e.target.value }, () => {
       this.setPage(0)
@@ -184,105 +181,71 @@ export default class Home extends Component {
   }
 
   render() {
-    const TablePaginationActions = () => {
-      return (
-        <div className="paginationButtons">
-          <IconButton
-            disabled={this.state.currentPage === 0}
-            aria-label="First Page"
-            onClick={this.handleFirst}
-            // className="paginationButton"
-          >
-            {'|<'}
-          </IconButton>
-          <IconButton
-            disabled={this.state.currentPage === 0}
-            aria-label="Previous Page"
-            onClick={this.handlePrevious}
-          >
-            {'<'}
-          </IconButton>
-          <IconButton
-            disabled={this.state.currentPage === this.state.lastPage}
-            aria-label="Next Page"
-            onClick={this.handleNext}
-          >
-            {'>'}
-          </IconButton>
-          <IconButton
-            disabled={this.state.currentPage === this.state.lastPage}
-            aria-label="Last Page"
-            onClick={this.handleLast}
-          >
-            {'>|'}
-          </IconButton>
-        </div>
-      )
-    }
-
     return (
-      <div>
-        <AppBar position="static" color="primary">
-          <Toolbar>
-            <div className="title" onClick={this.handleReset}>
-              <Typography variant="h6" color="inherit">
-                Trouvez votre commerce de proximité
-              </Typography>
-            </div>
-            <div className="search">
-              <form onSubmit={this.handleSubmit}>
-                <div className="searchIcon" onClick={this.handleSortCodePostal}>
-                  <SearchIcon />
-                </div>
-                <div className="searchInput">
-                  <InputBase
-                    type="search"
-                    placeholder="    Nom du commerce ..."
-                    id="searchInput"
-                    onChange={this.handleChange}
-                  />
-                </div>
-              </form>
-            </div>
-            <div>
-              <Button color="inherit" onClick={this.handleSortCodePostal}>
-                Tri par code postal
-              </Button>
-            </div>
-          </Toolbar>
-        </AppBar>
+      <div
+        style={{ backgroundColor: 'lightgray', width: '100%', height: '100%' }}
+      >
+        {this.state.tab === 0 ? (
+          <HeaderTable
+            handleChange={this.handleChange}
+            handleReset={this.handleReset}
+            handleSubmit={this.handleSubmit}
+            handleSortCodePostal={this.handleSortCodePostal}
+            tab={this.state.tab}
+          />
+        ) : (
+          <div>HEADER TAB2</div>
+        )}
 
         {this.state.error ? <Error /> : null}
         {this.state.loading ? <Loading /> : null}
 
-        <div>
-          <Paper>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Nom du Commerce</TableCell>
-                  <TableCell align="right">Ville</TableCell>
-                  <TableCell align="right">Code Postal</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableCommerces commerces={this.state.commerces} />
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                    colSpan={5}
-                    count={this.state.numResults}
-                    rowsPerPage={this.state.currentRows}
-                    page={this.state.currentPage}
-                    ActionsComponent={TablePaginationActions}
-                    onChangePage={this.handleChangePage}
-                    onChangeRowsPerPage={this.handleRows}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </Paper>
-        </div>
+        <Grid container justify="center">
+          <Grid item sm>
+            {this.state.tab === 0 ? (
+              <TableTab
+                currentPage={this.state.currentPage}
+                currentFilter={this.state.currentFilter}
+                currentSort={this.state.currentSort}
+                currentRows={this.state.currentRows}
+                lastPage={this.state.lastPage}
+                commerces={this.state.commerces}
+                numResults={this.state.numResults}
+                handleFirst={this.handleFirst}
+                handleLast={this.handleLast}
+                handlePrevious={this.handlePrevious}
+                handleNext={this.handleNext}
+                handleChangePage={this.handleChangePage}
+                handleRows={this.handleRows}
+              />
+            ) : (
+              <div>TAB2</div>
+            )}
+          </Grid>
+        </Grid>
+        {/* <div style={{ marginTop: '2%', marginLeft: '5%', marginRight: '5%' }}>
+          {this.state.tab === 0 ? (
+            <TableTab
+              currentPage={this.state.currentPage}
+              currentFilter={this.state.currentFilter}
+              currentSort={this.state.currentSort}
+              currentRows={this.state.currentRows}
+              lastPage={this.state.lastPage}
+              commerces={this.state.commerces}
+              numResults={this.state.numResults}
+              handleFirst={this.handleFirst}
+              handleLast={this.handleLast}
+              handlePrevious={this.handlePrevious}
+              handleNext={this.handleNext}
+              handleChangePage={this.handleChangePage}
+              handleRows={this.handleRows}
+            />
+          ) : (
+            <div>TAB2</div>
+          )}
+        </div> */}
+        <Footer tab={this.state.tab} handleChangeTab={this.handleChangeTab} />
+        {/* {console.log(this.state)} */}
       </div>
     )
   }

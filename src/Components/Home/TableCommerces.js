@@ -2,6 +2,7 @@ import React from 'react'
 import TableRow from '@material-ui/core/TableRow'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
+import Typography from '@material-ui/core/Typography'
 
 const TableCommerces = ({ commerces }) => {
   return (
@@ -9,10 +10,20 @@ const TableCommerces = ({ commerces }) => {
       {commerces.map((commerce, index) => (
         <TableRow key={index}>
           <TableCell component="th" scope="row">
-            {commerce.tco_libelle}
+            <Typography variant="body1" color="textSecondary">
+              {commerce.tco_libelle}
+            </Typography>
           </TableCell>
-          <TableCell align="right">{commerce.ville}</TableCell>
-          <TableCell align="right">{commerce.code_postal}</TableCell>
+          <TableCell align="right">
+            <Typography variant="body1" color="textSecondary">
+              {commerce.ville}
+            </Typography>
+          </TableCell>
+          <TableCell align="right">
+            <Typography variant="body1" color="textSecondary">
+              {commerce.code_postal}
+            </Typography>
+          </TableCell>
         </TableRow>
       ))}
     </TableBody>
