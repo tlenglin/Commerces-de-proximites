@@ -6,6 +6,13 @@ https://data.ratp.fr/explore/dataset/liste-des-commerces-de-proximite-agrees-rat
 React -> create-react-app
 Framework css -> material-ui
 
+TODO:
+Error and Loading CSS
+Geolocalisation
+Clickable Commerces
+Tests (JEST)
+Filter tco_libelle OR ville ?
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
