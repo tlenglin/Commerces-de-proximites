@@ -35,7 +35,7 @@ export default class Home extends Component {
   }
 
   componentDidMount() {
-    this.fetchCommerces(10, 1, '', '', 0)
+    this.fetchCommerces(10, 0, '', '', 0)
   }
 
   fetchCommerces = (rows, page, filter, sort, start) => {
@@ -74,7 +74,7 @@ export default class Home extends Component {
             this.setState({
               error: true,
               loading: false,
-              lastPage: 1,
+              lastPage: 0,
               numResults: 0,
               commerces: []
             })
@@ -148,14 +148,9 @@ export default class Home extends Component {
   }
 
   handleRows = e => {
-    this.setState(
-      {
-        currentRows: e.target.value
-      },
-      () => {
-        this.setPage(0)
-      }
-    )
+    this.setState({ currentRows: e.target.value }, () => {
+      this.setPage(0)
+    })
   }
 
   handleSubmit = e => {
@@ -177,7 +172,7 @@ export default class Home extends Component {
   }
 
   handleReset = () => {
-    this.fetchCommerces(10, 1, '', '', 0)
+    this.fetchCommerces(10, 0, '', '', 0)
   }
 
   handleCloseLoading = () => {
@@ -200,12 +195,10 @@ export default class Home extends Component {
           >
             {'|<'}
           </IconButton>
-
           <IconButton
             disabled={this.state.currentPage === 0}
             aria-label="Previous Page"
             onClick={this.handlePrevious}
-            // className="paginationButton"
           >
             {'<'}
           </IconButton>
@@ -213,7 +206,6 @@ export default class Home extends Component {
             disabled={this.state.currentPage === this.state.lastPage}
             aria-label="Next Page"
             onClick={this.handleNext}
-            // className="paginationButton"
           >
             {'>'}
           </IconButton>
@@ -221,13 +213,13 @@ export default class Home extends Component {
             disabled={this.state.currentPage === this.state.lastPage}
             aria-label="Last Page"
             onClick={this.handleLast}
-            // className="paginationButton"
           >
             {'>|'}
           </IconButton>
         </div>
       )
     }
+
     return (
       <div>
         <AppBar position="static" color="primary">
@@ -291,8 +283,6 @@ export default class Home extends Component {
             </Table>
           </Paper>
         </div>
-
-        {console.log(this.state)}
       </div>
     )
   }
