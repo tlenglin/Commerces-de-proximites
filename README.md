@@ -1,6 +1,10 @@
 # Commerces-de-proximites
 
-Single Page Application getting array of shops from data.ratp API
+Fetch les commerces de proximités de l'API de data.ratp
+https://data.ratp.fr/explore/dataset/liste-des-commerces-de-proximite-agrees-ratp/api/
+
+React -> create-react-app
+Framework css -> material-ui
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
