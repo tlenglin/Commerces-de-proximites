@@ -32,3 +32,7 @@ code {
   background-color: #ffffff;
   border-radius: 5px;
 }
+
+.paginationButtons {
+  flex-shrink: 0;
+}

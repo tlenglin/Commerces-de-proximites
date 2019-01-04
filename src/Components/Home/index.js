@@ -14,6 +14,9 @@ import TableHead from '@material-ui/core/TableHead'
 import Paper from '@material-ui/core/Paper'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
+import IconButton from '@material-ui/core/IconButton'
+import TableFooter from '@material-ui/core/TableFooter'
+import TablePagination from '@material-ui/core/TablePagination'
 export default class Home extends Component {
   constructor() {
     super()
@@ -21,13 +24,13 @@ export default class Home extends Component {
       commerces: [],
       loading: false,
       error: false,
-      currentPage: 1,
+      currentPage: 0,
       currentRows: 10,
       currentSort: '',
       searchInput: '',
       currentFilter: '',
       numResults: 0,
-      lastPage: 1
+      lastPage: 0
     }
   }
 
@@ -60,8 +63,8 @@ export default class Home extends Component {
               numResults: data.nhits,
               lastPage:
                 Math.floor(data.nhits / rows) === 0
-                  ? 1
-                  : Math.floor(data.nhits / rows),
+                  ? 0
+                  : Math.floor(data.nhits / rows) - 1,
               loading: false,
               error: false
             })
@@ -88,56 +91,43 @@ export default class Home extends Component {
 
   handlePrevious = () => {
     const newPage =
-      this.state.currentPage === 1 ? 1 : this.state.currentPage - 1
-    const start = (newPage - 1) * this.state.currentRows
-    this.fetchCommerces(
-      this.state.currentRows,
-      newPage,
-      this.state.currentFilter,
-      this.state.currentSort,
-      start
-    )
+      this.state.currentPage === 0 ? 0 : this.state.currentPage - 1
+    this.setPage(newPage)
   }
 
   handleFirst = () => {
-    const newPage = 1
-    const start = (newPage - 1) * this.state.currentRows
-    this.fetchCommerces(
-      this.state.currentRows,
-      newPage,
-      this.state.currentFilter,
-      this.state.currentSort,
-      start
-    )
+    const newPage = 0
+    this.setPage(newPage)
   }
 
   handleNext = () => {
     const newPage = this.state.currentPage + 1
-    const start = (newPage - 1) * this.state.currentRows
+    this.setPage(newPage)
+  }
+
+  setPage = page => {
+    const start = page * this.state.currentRows
     this.fetchCommerces(
       this.state.currentRows,
-      newPage,
+      page,
       this.state.currentFilter,
       this.state.currentSort,
       start
     )
+  }
+
+  handleChangePage = (e, page) => {
+    this.setPage(page)
   }
 
   handleLast = () => {
     const newPage = this.state.lastPage
-    const start = (newPage - 1) * this.state.currentRows
-    this.fetchCommerces(
-      this.state.currentRows,
-      newPage,
-      this.state.currentFilter,
-      this.state.currentSort,
-      start
-    )
+    this.setPage(newPage)
   }
 
   handleSortCodePostal = () => {
-    const newPage = 1
-    const start = (newPage - 1) * this.state.currentRows
+    const newPage = 0
+    const start = newPage * this.state.currentRows
     const newSort =
       this.state.currentSort === '&sort=code_postal'
         ? '&sort=-code_postal'
@@ -157,10 +147,21 @@ export default class Home extends Component {
     })
   }
 
+  handleRows = e => {
+    this.setState(
+      {
+        currentRows: e.target.value
+      },
+      () => {
+        this.setPage(0)
+      }
+    )
+  }
+
   handleSubmit = e => {
     e.preventDefault()
-    const newPage = 1
-    const start = (newPage - 1) * this.state.currentRows
+    const newPage = 0
+    const start = newPage * this.state.currentRows
     const newSort = ''
     const newFilter =
       this.state.searchInput === ''
@@ -188,6 +189,45 @@ export default class Home extends Component {
   }
 
   render() {
+    const TablePaginationActions = () => {
+      return (
+        <div className="paginationButtons">
+          <IconButton
+            disabled={this.state.currentPage === 0}
+            aria-label="First Page"
+            onClick={this.handleFirst}
+            // className="paginationButton"
+          >
+            {'|<'}
+          </IconButton>
+
+          <IconButton
+            disabled={this.state.currentPage === 0}
+            aria-label="Previous Page"
+            onClick={this.handlePrevious}
+            // className="paginationButton"
+          >
+            {'<'}
+          </IconButton>
+          <IconButton
+            disabled={this.state.currentPage === this.state.lastPage}
+            aria-label="Next Page"
+            onClick={this.handleNext}
+            // className="paginationButton"
+          >
+            {'>'}
+          </IconButton>
+          <IconButton
+            disabled={this.state.currentPage === this.state.lastPage}
+            aria-label="Last Page"
+            onClick={this.handleLast}
+            // className="paginationButton"
+          >
+            {'>|'}
+          </IconButton>
+        </div>
+      )
+    }
     return (
       <div>
         <AppBar position="static" color="primary">
@@ -234,26 +274,24 @@ export default class Home extends Component {
                 </TableRow>
               </TableHead>
               <TableCommerces commerces={this.state.commerces} />
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    colSpan={5}
+                    count={this.state.numResults}
+                    rowsPerPage={this.state.currentRows}
+                    page={this.state.currentPage}
+                    ActionsComponent={TablePaginationActions}
+                    onChangePage={this.handleChangePage}
+                    onChangeRowsPerPage={this.handleRows}
+                  />
+                </TableRow>
+              </TableFooter>
             </Table>
           </Paper>
         </div>
-        {this.state.currentPage - 1 === 0 ? null : (
-          <button onClick={this.handleFirst}>{'<<'}</button>
-        )}
-        {this.state.currentPage - 1 === 0 ? null : (
-          <button onClick={this.handlePrevious}>
-            {this.state.currentPage - 1}
-          </button>
-        )}
-        <button disabled={true}>{this.state.currentPage}</button>
-        {this.state.currentPage === this.state.lastPage ? null : (
-          <button onClick={this.handleNext}>
-            {this.state.currentPage + 1}
-          </button>
-        )}
-        {this.state.currentPage === this.state.lastPage ? null : (
-          <button onClick={this.handleLast}>{'>>'}</button>
-        )}
+
         {console.log(this.state)}
       </div>
     )
